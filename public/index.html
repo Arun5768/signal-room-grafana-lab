@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Trigger controlled checkout failures and investigate them with the Grafana observability stack." />
+    <title>Signal Room — Grafana Observability Lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">GRAFANA OBSERVABILITY LAB</p>
+        <h1>Break one checkout.<br />Follow every signal.</h1>
+        <p class="intro">
+          Trigger a controlled failure, then connect the same request across Prometheus metrics,
+          Loki logs, and Tempo traces.
+        </p>
+      </header>
+
+      <section class="panel" aria-labelledby="experiment-title">
+        <div>
+          <p class="step">01 / INJECT</p>
+          <h2 id="experiment-title">Choose what goes wrong</h2>
+        </div>
+        <div class="scenario-grid">
+          <button data-scenario="normal">
+            <span>Normal checkout</span>
+            <small>Baseline latency and success</small>
+          </button>
+          <button data-scenario="slow">
+            <span>Slow dependency</span>
+            <small>Push p95 above one second</small>
+          </button>
+          <button data-scenario="failure">
+            <span>Payment failure</span>
+            <small>Raise the error-rate alert</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel result-panel" aria-live="polite">
+        <div>
+          <p class="step">02 / CORRELATE</p>
+          <h2>Latest request</h2>
+        </div>
+        <div id="result" class="result empty">Run a scenario to create telemetry.</div>
+      </section>
+
+      <section class="signals" aria-label="Telemetry signals">
+        <article><strong>Metrics</strong><span>Rate, errors, duration</span></article>
+        <article><strong>Logs</strong><span>Structured event context</span></article>
+        <article><strong>Traces</strong><span>One request, end to end</span></article>
+        <article><strong>Alerts</strong><span>Actionable thresholds</span></article>
+      </section>
+
+      <footer>
+        <a href="http://localhost:3000" target="_blank" rel="noreferrer">Open Grafana →</a>
+        <span>Local learning environment. No real payments are processed.</span>
+      </footer>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

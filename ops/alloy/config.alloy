@@ -1,0 +1,69 @@
+logging {
+  level = "info"
+}
+
+loki.source.file "checkout" {
+  targets = [
+    {
+      __path__     = "/var/log/checkout/app.log",
+      service_name = "checkout-api",
+      environment  = "local",
+    },
+  ]
+  forward_to = [loki.process.checkout.receiver]
+}
+
+loki.process "checkout" {
+  stage.json {
+    expressions = {
+      level      = "",
+      route      = "",
+      scenario   = "",
+      outcome    = "",
+      trace_id   = "traceId",
+      duration_ms = "durationMs",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level    = "",
+      route    = "",
+      scenario = "",
+      outcome  = "",
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    traces = [otelcol.exporter.otlphttp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlphttp "tempo" {
+  client {
+    endpoint = "http://tempo:4318"
+  }
+}

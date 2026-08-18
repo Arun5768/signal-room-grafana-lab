@@ -1,0 +1,31 @@
+groups:
+  - name: signal-room-checkout
+    interval: 15s
+    rules:
+      - alert: CheckoutErrorRateHigh
+        expr: |
+          sum(rate(signal_room_checkout_requests_total{outcome="error"}[2m]))
+          /
+          clamp_min(sum(rate(signal_room_checkout_requests_total[2m])), 0.001)
+          > 0.10
+        for: 1m
+        labels:
+          severity: page
+          service: checkout-api
+        annotations:
+          summary: Checkout error rate is above 10%
+          description: Investigate recent failure scenarios and correlate the request trace with Loki logs.
+
+      - alert: CheckoutP95LatencyHigh
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(signal_room_checkout_duration_seconds_bucket[5m])) by (le)
+          ) > 1
+        for: 2m
+        labels:
+          severity: ticket
+          service: checkout-api
+        annotations:
+          summary: Checkout p95 latency is above one second
+          description: Inspect slow traces and compare them with the request-duration histogram.

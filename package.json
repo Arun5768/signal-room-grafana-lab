@@ -1,0 +1,18 @@
+{
+  "name": "signal-room-grafana-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A failure-injection checkout service for learning metrics, logs, traces, dashboards, and alerts with the Grafana stack.",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test",
+    "check": "node --check src/index.js && node --check src/server.js && node --check src/metrics.js && node --check src/tracing.js && node --check public/app.js",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

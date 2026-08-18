@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm test
+      - run: npm run check
+      - name: Validate dashboard JSON
+        run: node -e "JSON.parse(require('node:fs').readFileSync('ops/grafana/dashboards/signal-room.json'))"
+      - name: Validate Compose model
+        run: docker compose config --quiet
+      - name: Build application image
+        run: docker compose build app
+
+  stack-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Start observability stack
+        run: docker compose up --build -d
+      - name: Wait for the application
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:8080/healthz; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - run: npm run smoke
+      - name: Confirm Prometheus scraped the service
+        run: |
+          for attempt in $(seq 1 20); do
+            result=$(curl --silent --get --data-urlencode 'query=signal_room_build_info' http://localhost:9090/api/v1/query)
+            if echo "$result" | grep --quiet '"result".*signal_room_build_info'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Print service logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v

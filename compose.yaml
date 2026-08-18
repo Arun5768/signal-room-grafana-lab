@@ -1,0 +1,108 @@
+name: signal-room
+
+services:
+  app:
+    build: .
+    environment:
+      PORT: "8080"
+      LOG_FILE: /var/log/checkout/app.log
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://alloy:4318/v1/traces
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - app-logs:/var/log/checkout
+    depends_on:
+      alloy:
+        condition: service_started
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./ops/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.7.6
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - ./ops/loki/loki.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:3.0.3
+    command: -config.file=/etc/tempo/config.yml
+    ports:
+      - "127.0.0.1:3200:3200"
+    volumes:
+      - ./ops/tempo/tempo.yml:/etc/tempo/config.yml:ro
+      - tempo-data:/var/tempo
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.18.1
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+    ports:
+      - "127.0.0.1:12345:12345"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+    volumes:
+      - ./ops/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - app-logs:/var/log/checkout:ro
+    depends_on:
+      - loki
+      - tempo
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.2.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+
+  k6:
+    image: grafana/k6:2.2.0
+    profiles: ["load"]
+    command: run /scripts/checkout.js
+    environment:
+      BASE_URL: http://app:8080
+    volumes:
+      - ./load:/scripts:ro
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  app-logs:
+  grafana-data:
+  loki-data:
+  prometheus-data:
+  tempo-data:
