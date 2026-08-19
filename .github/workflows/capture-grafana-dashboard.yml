@@ -1,0 +1,89 @@
+name: Capture real Grafana dashboard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/capture-grafana-screenshot
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@v4
+
+      - name: Start the complete observability stack
+        run: docker compose up -d --build
+
+      - name: Wait for the application and Grafana
+        shell: bash
+        run: |
+          for attempt in {1..60}; do
+            if curl --fail --silent http://localhost:8080/health >/dev/null && curl --fail --silent http://localhost:3000/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose ps
+          docker compose logs
+          exit 1
+
+      - name: Generate a visible traffic pattern
+        shell: bash
+        run: |
+          for request in {1..45}; do
+            curl --silent --output /dev/null --request POST \
+              --header 'content-type: application/json' \
+              --data '{"scenario":"normal"}' \
+              http://localhost:8080/api/checkout
+          done
+
+          for request in {1..14}; do
+            curl --silent --output /dev/null --request POST \
+              --header 'content-type: application/json' \
+              --data '{"scenario":"slow"}' \
+              http://localhost:8080/api/checkout
+          done
+
+          for request in {1..12}; do
+            curl --silent --output /dev/null --request POST \
+              --header 'content-type: application/json' \
+              --data '{"scenario":"failure"}' \
+              http://localhost:8080/api/checkout || true
+          done
+
+          sleep 12
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the screenshot browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Capture the provisioned Grafana dashboard
+        run: node scripts/capture-grafana.mjs
+
+      - name: Commit the generated screenshot
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/assets/grafana-signal-room-dashboard.png
+          git diff --cached --quiet && exit 0
+          git commit -m 'docs: capture real Grafana dashboard'
+          git push
+
+      - name: Print service logs when capture fails
+        if: failure()
+        run: docker compose logs
+
