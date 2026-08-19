@@ -60,6 +60,12 @@ jobs:
 
           sleep 12
 
+      - name: Verify the dashboard was provisioned
+        run: >-
+          curl --fail --silent --user admin:admin
+          http://localhost:3000/api/dashboards/uid/signal-room-checkout
+          >/dev/null
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
