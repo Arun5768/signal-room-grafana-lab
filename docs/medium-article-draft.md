@@ -73,4 +73,4 @@ Signal Room gave me a better way to explain observability in workshops: start wi
 
 Live demo: <https://signal-room-grafana-lab.arunchandel1780.workers.dev>
 
-Project source: [ADD PUBLIC GITHUB URL]
+Project source: https://github.com/Arun5768/signal-room-grafana-lab
