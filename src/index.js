@@ -1,9 +1,9 @@
-import { createSignalRoom } from './server.js';
+import { createSignalRoom } from "./server.js";
 
 const port = Number(process.env.PORT ?? 8080);
 const { server } = createSignalRoom();
 
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, "0.0.0.0", () => {
   process.stdout.write(`Signal Room listening on http://localhost:${port}\n`);
 });
 
@@ -14,5 +14,5 @@ function shutdown(signal) {
   });
 }
 
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));

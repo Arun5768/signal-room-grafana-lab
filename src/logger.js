@@ -1,5 +1,5 @@
-import { appendFile, mkdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { appendFile, mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 
 export function createLogger({ filePath = process.env.LOG_FILE } = {}) {
   let directoryReady;
@@ -10,7 +10,7 @@ export function createLogger({ filePath = process.env.LOG_FILE } = {}) {
     }
     directoryReady ??= mkdir(dirname(filePath), { recursive: true });
     await directoryReady;
-    await appendFile(filePath, line, 'utf8');
+    await appendFile(filePath, line, "utf8");
   }
 
   function write(level, message, fields = {}) {
@@ -18,7 +18,7 @@ export function createLogger({ filePath = process.env.LOG_FILE } = {}) {
       timestamp: new Date().toISOString(),
       level,
       message,
-      service: 'checkout-api',
+      service: "checkout-api",
       ...fields,
     })}\n`;
     process.stdout.write(line);
@@ -28,8 +28,8 @@ export function createLogger({ filePath = process.env.LOG_FILE } = {}) {
   }
 
   return {
-    info: (message, fields) => write('info', message, fields),
-    warn: (message, fields) => write('warn', message, fields),
-    error: (message, fields) => write('error', message, fields),
+    info: (message, fields) => write("info", message, fields),
+    warn: (message, fields) => write("warn", message, fields),
+    error: (message, fields) => write("error", message, fields),
   };
 }
