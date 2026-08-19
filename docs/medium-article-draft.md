@@ -1,5 +1,7 @@
 # I Built a Grafana Dashboard. Then I Realised It Wasn't Observability.
 
+![Signal Room — metrics to logs to traces](assets/signal-room-article-thumbnail.png)
+
 The last test I ran on Signal Room was deliberately boring.
 
 I opened the live site, clicked **Payment failure**, and waited. The checkout failed in 123 ms, exactly as it was supposed to. The useful part was not the red failure message. It was the small string shown underneath it:
