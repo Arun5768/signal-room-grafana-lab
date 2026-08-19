@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           for attempt in {1..60}; do
-            if curl --fail --silent http://localhost:8080/health >/dev/null && curl --fail --silent http://localhost:3000/api/health >/dev/null; then
+            if curl --fail --silent http://localhost:8080/healthz >/dev/null && curl --fail --silent http://localhost:3000/api/health >/dev/null; then
               exit 0
             fi
             sleep 3
@@ -86,4 +86,3 @@ jobs:
       - name: Print service logs when capture fails
         if: failure()
         run: docker compose logs
-
