@@ -4,6 +4,8 @@ Most observability demos begin at the end. They show a polished dashboard full o
 
 I built Signal Room to practise that missing path.
 
+You can try the public failure injector here: [Signal Room live demo](https://signal-room-grafana-lab.arunchandel1780.workers.dev). It runs on Cloudflare Workers and returns a trace ID for every synthetic checkout. The repository contains the complete Grafana, Prometheus, Loki, Tempo, and Alloy lab.
+
 ## The problem with disconnected signals
 
 A latency chart can tell us that users waited longer. It cannot explain which request was affected. A log can contain an error message, but without context it may be impossible to connect that message to a user-visible symptom. A trace shows the shape of one request, but it needs a reason to be investigated.
@@ -59,8 +61,16 @@ The lab uses local filesystem storage and local credentials so that another lear
 
 That boundary is documented because a reproducible demo should not pretend to be a production deployment.
 
+## Why the public demo is separate
+
+The live Worker is an interaction surface, not a fake hosted Grafana stack. It lets a reviewer run the same normal, slow, and failure scenarios, inspect request evidence, and export a small incident report. Cloudflare Workers Observability stores its structured runtime logs.
+
+The full investigation lab stays in Docker Compose because Prometheus, Loki, Tempo, Alloy, and Grafana are independent services with their own storage and lifecycle. Keeping that distinction visible is more honest—and more useful—than replacing real backends with hard-coded dashboard screenshots.
+
 ## The outcome
 
 Signal Room gave me a better way to explain observability in workshops: start with a user-visible failure, follow the evidence, and finish with a decision. The source, dashboard, alerts, workload, tests, and runbook are published together so another builder can repeat the exercise rather than only view the final screenshot.
 
-Project link: [ADD PUBLIC GITHUB URL]
+Live demo: <https://signal-room-grafana-lab.arunchandel1780.workers.dev>
+
+Project source: [ADD PUBLIC GITHUB URL]

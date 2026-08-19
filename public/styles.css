@@ -99,6 +99,24 @@ button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
+.text-button {
+  min-height: auto;
+  margin-top: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 4px;
+}
+.text-button:hover,
+.text-button:focus-visible {
+  border: 0;
+  background: transparent;
+  transform: none;
+}
 button span {
   display: block;
   margin-bottom: 12px;
@@ -150,6 +168,42 @@ button small {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   margin-top: 18px;
+}
+.history {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.history-empty,
+.history-item {
+  min-height: 62px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+}
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 16px;
+}
+.history-item strong {
+  color: var(--ink);
+  text-transform: capitalize;
+}
+.history-item code {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  color: #d7c7ff;
+  font-size: 0.75rem;
+}
+.history-item.success {
+  border-left: 3px solid var(--green);
+}
+.history-item.error {
+  border-left: 3px solid var(--red);
 }
 .signals article {
   padding: 22px 14px;

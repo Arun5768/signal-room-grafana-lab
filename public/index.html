@@ -52,6 +52,19 @@
         </div>
       </section>
 
+      <section class="panel evidence-panel" aria-labelledby="evidence-title">
+        <div>
+          <p class="step">03 / EVIDENCE</p>
+          <h2 id="evidence-title">Session trail</h2>
+          <button id="download" class="text-button" type="button" disabled>
+            Download report ↓
+          </button>
+        </div>
+        <ol id="history" class="history">
+          <li class="history-empty">Your requests will appear here.</li>
+        </ol>
+      </section>
+
       <section class="signals" aria-label="Telemetry signals">
         <article>
           <strong>Metrics</strong><span>Rate, errors, duration</span>
@@ -68,10 +81,16 @@
       </section>
 
       <footer>
-        <a href="http://localhost:3000" target="_blank" rel="noreferrer"
-          >Open Grafana →</a
+        <a
+          id="grafana-link"
+          href="http://localhost:3000"
+          target="_blank"
+          rel="noreferrer"
+          >Open local Grafana →</a
         >
-        <span>Local learning environment. No real payments are processed.</span>
+        <span id="runtime-note"
+          >Local learning environment. No real payments are processed.</span
+        >
       </footer>
     </main>
     <script src="/app.js" type="module"></script>
