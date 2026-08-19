@@ -12,11 +12,8 @@ try {
     { waitUntil: "domcontentloaded" },
   );
 
-  await page.getByText("Signal Room — Checkout Observability", { exact: true }).first().waitFor({
-    state: "visible",
-    timeout: 45_000,
-  });
-  await page.waitForTimeout(15_000);
+  await page.waitForTimeout(20_000);
+  console.log(`Capturing ${await page.title()} at ${page.url()}`);
 
   await page.screenshot({
     path: "docs/assets/grafana-signal-room-dashboard.png",
